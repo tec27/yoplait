@@ -1,6 +1,6 @@
 {
   "name": "yoplait",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A wrapper around the \"unofficial\" Yo API.",
   "main": "index.js",
   "scripts": {
@@ -10,6 +10,14 @@
     "yo",
     "api"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tec27/yoplait"
+  },
+  "bugs": {
+    "url": "https://github.com/tec27/yoplait/issues"
+  },
+  "homepage": "https://github.com/tec27/yoplait",
   "author": "Travis Collins <travis@tec27.com> (http://tec27.com/)",
   "license": "MIT",
   "dependencies": {
