@@ -1,0 +1,19 @@
+{
+  "name": "yoplait",
+  "version": "0.1.0",
+  "description": "A wrapper around the \"unofficial\" Yo API.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "yo",
+    "api"
+  ],
+  "author": "Travis Collins <travis@tec27.com> (http://tec27.com/)",
+  "license": "MIT",
+  "dependencies": {
+    "request": "^2.36.0",
+    "uuid": "^1.4.1"
+  }
+}
