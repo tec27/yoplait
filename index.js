@@ -222,7 +222,7 @@ function signUp(username, udid, cb) {
   var installId = uuid()
     , version = PARSE_VERSION
     , install = new YoInstall(version, installId)
-    , email = username.split(/[^0-9a-zA-Z!#$%&'*+-\/=?^_`{|}~.]/).join('_') + '@yo.com'
+    , email = username.split(/[^0-9a-zA-Z+-\/_.]/).join('_') + '@yo.com'
   install.signUp(email, username, udid, function(err, result) {
     if (err) {
       return cb(err)
