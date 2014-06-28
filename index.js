@@ -132,32 +132,6 @@ YoInstall.prototype.create = function(username, timeZone, cb) {
   })
 }
 
-YoInstall.prototype.gcmUpdate = function(objectId, deviceToken, deviceTokenLastModified, cb) {
-  var requestData = {
-    data: {
-        pushType: 'gcm',
-        objectId: objectId,
-        deviceToken: deviceToken,
-        deviceTokenLastModified: deviceTokenLastModified
-      },
-    v: this.version,
-    uuid: uuid(),
-    iid: this.installId,
-    session_token: 'null',
-    classname: '_Installation',
-  }
-
-  request({ method: 'POST', uri: baseUrl + 'update', json: requestData }, function(err, res, data) {
-    if (err) {
-      return cb(err)
-    } else if (data.error) {
-      return cb(convertError(data))
-    }
-
-    cb(null, data.result)
-  })
-}
-
 YoInstall.prototype.sendYo = function(to, myUdid, cb) {
   this._clientFunction('yo', { to: to, sound: 'yo.mp3', udid: myUdid }, function(err, result) {
     if (err) {
@@ -196,14 +170,9 @@ YoInstall.prototype.unblock = function(target, myUdid, cb) {
 
 var PARSE_VERSION = 'a1.4.1'
 
-function Yoplait(udid, installId, objectId) {
+function Yoplait(udid, installId) {
   this.install = new YoInstall(PARSE_VERSION, installId)
   this.udid = udid
-  this.objectId = objectId
-}
-
-Yoplait.prototype.gcmUpdate = function(deviceToken, deviceTokenLastModified, cb) {
-  this.install.gcmUpdate(this.objectId, deviceToken, deviceTokenLastModified, cb)
 }
 
 Yoplait.prototype.sendYo = function(to, cb) {
@@ -228,22 +197,15 @@ function signUp(username, udid, cb) {
       return cb(err)
     }
 
-    var yoplait = new Yoplait(udid, installId, result.objectId)
+    var yoplait = new Yoplait(udid, installId)
     cb(null, yoplait)
   })
 }
 
 function getExistingUser(username, udid, cb) {
   var installId = uuid()
-    , version = PARSE_VERSION
-    , install = new YoInstall(version, installId)
-  install.create(username, 'America\/Los_Angeles', function(err, result) {
-    if (err) {
-      return cb(err)
-    }
-
-    var yoplait = new Yoplait(udid, installId, result.objectId)
-    cb(null, yoplait)
+  process.nextTick(function() {
+    cb(null, new Yoplait(udid, installId))
   })
 }
 

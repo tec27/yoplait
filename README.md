@@ -65,12 +65,6 @@ Blocks the username specified by `target`. Callback is in the form of `cb(err)`.
 ####<b><code>user#unblock(target, cb)</b></code>
 Unblocks the username specified by `target`. Callback is in the form of `cb(err)`.
 
-####<b><code>user#gcmUpdate(deviceToken, deviceTokenLastModified, cb)</b></code>
-Updates the GCM registration for a particular user, changing how Yo will handle push notifications
-for a device. Callback is in the form of `cb(err, result)`. This method is *probably* not very
-useful to you.
-
-
 ## Installation
 `npm install yoplait`
 
