@@ -6,6 +6,13 @@ existing users, block and unblock users, and, of course, send yos.
 
 [![NPM](https://nodei.co/npm/yoplait.png)](https://www.npmjs.org/package/yoplait)
 
+##Notes for usage
+yoplait is best used as a module for creating bots that occupy single (or a limited number of) Yo
+accounts, so as not to pollute the limited Yo namespace. If you plan to use yoplait for sending
+messages from a large number of accounts, or using account names as messages, I would recommend
+utilizing [yofor.me](http://yofor.me) instead. It's simpler to setup and use, and it keeps the
+limited namespace available for others!
+
 ## Usage
 ```javascript
 var yoplait = require('yoplait')
