@@ -1,6 +1,6 @@
 #yoplait
-A simple wrapper around the unofficial Yo API, allowing you to sign up new accounts, register new
-installs as existing users, block and unblock users, and, of course, send yos.
+A simple wrapper around the unofficial Yo API, allowing you to sign up new accounts, log in as
+existing users, block and unblock users, and, of course, send yos.
 
 [![NPM](https://img.shields.io/npm/v/yoplait.svg?style=flat)](https://www.npmjs.org/package/yoplait)
 
@@ -14,7 +14,7 @@ var udid = yoplait.genUdid()
   , username = 'yoplait ' + Date.now()
 
 console.log('signing up \'' + username + '\' with udid ' + udid)
-yoplait.newUser(username, udid, function(err, yo) {
+yoplait.signUp(username, udid, udid, function(err, yo) {
   if (err) {
     return console.log('sign up failed!: ', err)
   }
@@ -34,12 +34,17 @@ yoplait.newUser(username, udid, function(err, yo) {
 ## API
 `var yoplait = require('yoplait')`
 
-####<b><code>yoplait#newUser(username, udid, cb)</code></b>
+####<b><code>yoplait#signUp(username, password, udid, cb)</code></b>
 Sign up a new Yo account with the specified username and udid (device ID). Callback is in the form
 of `cb(err, yoplaitUser)`.
 
-####<b><code>yoplait#existingUser(username, udid, cb)</code></b>
-Register a new install for an existing Yo user. Callback is in the form of `cb(err, yoplaitUser)`.
+####<b><code>yoplait#logIn(username, password, udid, cb)</code></b>
+Log in as an existing Yo user. Callback is in the form of `cb(err, yoplaitUser)`.
+
+####<b><code>yoplait#useExistingSession(udid, sessionToken, objectId, cb)</code></b>
+Create a YoplaitUser from a existing session information. Yo sessions are long-lived, and so are
+safe to store the details of e.g. on disk for later retrieval/usage. Callback is in the form of
+`cb(err, yoplaitUser)`.
 
 ####<b><code>yoplait#lookupUdid(udid, cb)</code></b>
 Look up a udid and see if it has an attached Yo account. Callback is in the form of
@@ -64,6 +69,28 @@ Blocks the username specified by `target`. Callback is in the form of `cb(err)`.
 
 ####<b><code>user#unblock(target, cb)</b></code>
 Unblocks the username specified by `target`. Callback is in the form of `cb(err)`.
+
+####<b><code>user#udid</b></code>
+The UDID of this YoplaitUser.
+
+####<b><code>user#sessionToken</b></code>
+The sessionToken for this Yo user's current session. Fairly long lived and safe to store for later
+usage.
+
+####<b><code>user#objectId</b></code>
+The objectId corresponding to this Yo user's User object. Used for updating attributes, like the
+password. This value lives as long as User object does, and is thus safe to store.
+
+## Note for Yo accounts created pre-0.4.0
+Yo accounts created before yoplait 0.4.0 don't have a password, and are now blocked by the Yo API.
+If you receive an error with code `141` with the message `RESTART APP AND TRY AGAIN!!!` or
+`ERROR 41`, this means your user account must set a password before being usable again.
+Unfortunately, Yo uses GCM (or the iOS equivalent) to give out password change tokens, so this
+library is unable to properly update their passwords and make the accounts usable again.
+
+Thus, any accounts created before 0.4.0 are *broken permanently* (unless we find a way around this).
+My recommendation would be to create an account with the same name, but with a space added (or
+similar). Sorry for your loss :(
 
 ## Installation
 `npm install yoplait`

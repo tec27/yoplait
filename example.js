@@ -4,7 +4,7 @@ var udid = yoplait.genUdid()
   , username = 'yoplait ' + Date.now()
 
 console.log('signing up \'' + username + '\' with udid ' + udid)
-yoplait.newUser(username, udid, function(err, yo) {
+yoplait.signUp(username, udid, udid, function(err, yo) {
   if (err) {
     return console.log('sign up failed!: ', err)
   }

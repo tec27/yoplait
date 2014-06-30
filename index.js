@@ -20,12 +20,13 @@ function convertError(serverData) {
   return error
 }
 
-YoInstall.prototype._clientFunction = function(name, data, cb) {
+YoInstall.prototype._clientFunction = function(name, data, sessionToken, cb) {
   var requestData = {
     data: data,
     v: this.version,
     uuid: uuid(),
     iid: this.installId,
+    session_token: sessionToken,
     'function': name
   }
 
@@ -44,7 +45,7 @@ YoInstall.prototype._clientFunction = function(name, data, cb) {
 }
 
 YoInstall.prototype.getUserByUdid = function(udid, cb) {
-  this._clientFunction('getUserByUDID', { udid: udid }, function(err, user) {
+  this._clientFunction('getUserByUDID', { udid: udid }, undefined, function(err, user) {
     if (err) {
       if (err.serverCode != 141) {
         return cb(err)
@@ -58,7 +59,7 @@ YoInstall.prototype.getUserByUdid = function(udid, cb) {
 }
 
 YoInstall.prototype.getUserByUsername = function(username, myUdid, cb) {
-  this._clientFunction('getUserByUsername', { username: username, udid: myUdid },
+  this._clientFunction('getUserByUsername', { username: username, udid: myUdid }, undefined,
     function(err, user) {
       if (err) {
         if (err.serverCode != 141) {
@@ -72,16 +73,17 @@ YoInstall.prototype.getUserByUsername = function(username, myUdid, cb) {
     })
 }
 
-YoInstall.prototype.signUp = function(email, username, udid, cb) {
+YoInstall.prototype.signUp = function(email, username, password, udid, cb) {
   var requestData = {
     data: {
         email: email,
         username: username,
         deviceType: 'android',
-        udid: udid
+        udid: udid,
+        didEnterPassword: true
       },
     v: this.version,
-    user_password: '',
+    user_password: password,
     uuid: uuid(),
     iid: this.installId,
     'classname': '_User'
@@ -96,6 +98,29 @@ YoInstall.prototype.signUp = function(email, username, udid, cb) {
       }
 
       return cb(null, data.result)
+    })
+}
+
+YoInstall.prototype.logIn = function(username, password, cb) {
+  var requestData = {
+    username: username,
+    user_password: password,
+    v: this.version,
+    uuid: uuid(),
+    iid: this.installId,
+  }
+
+  request({ method: 'POST', uri: baseUrl + 'user_login', json: requestData },
+    function(err, res, data) {
+      if (err) {
+        return cb(err)
+      } else if (data.error) {
+        return cb(convertError(data))
+      } else if (!data.result) {
+        return cb(new Error('No result!'))
+      }
+
+      cb(null, data.result)
     })
 }
 
@@ -132,8 +157,30 @@ YoInstall.prototype.create = function(username, timeZone, cb) {
   })
 }
 
-YoInstall.prototype.sendYo = function(to, myUdid, cb) {
-  this._clientFunction('yo', { to: to, sound: 'yo.mp3', udid: myUdid }, function(err, result) {
+YoInstall.prototype.updateUser = function(updateData, sessionToken, cb) {
+  var requestData = {
+    data: updateData,
+    v: this.version,
+    uuid: uuid(),
+    iid: this.installId,
+    session_token: sessionToken,
+    classname: '_User'
+  }
+
+  request({ method: 'POST', uri: baseUrl + 'update', json: requestData }, function(err, res, data) {
+    if (err) {
+      return cb(err)
+    } else if (data.error) {
+      return cb(convertError(data))
+    }
+
+    cb(null, data.result)
+  })
+}
+
+YoInstall.prototype.sendYo = function(to, myUdid, sessionToken, cb) {
+  var data = { to: to, sound: 'yo.mp3', udid: myUdid }
+  this._clientFunction('yo', data, sessionToken, function(err, result) {
     if (err) {
       return cb(err)
     } else if (result != 'OK') {
@@ -144,8 +191,9 @@ YoInstall.prototype.sendYo = function(to, myUdid, cb) {
   })
 }
 
-YoInstall.prototype.block = function(target, myUdid, cb) {
-  this._clientFunction('block', { username: target, udid: myUdid }, function(err, result) {
+YoInstall.prototype.block = function(target, myUdid, sessionToken, cb) {
+  var data = { username: target, udid: myUdid }
+  this._clientFunction('block', data, sessionToken, function(err, result) {
     if (err) {
       return cb(err)
     } else if (result != 'OK') {
@@ -156,8 +204,9 @@ YoInstall.prototype.block = function(target, myUdid, cb) {
   })
 }
 
-YoInstall.prototype.unblock = function(target, myUdid, cb) {
-  this._clientFunction('unblock', { username: target, udid: myUdid }, function(err, result) {
+YoInstall.prototype.unblock = function(target, myUdid, sessionToken, cb) {
+  var data = { username: target, udid: myUdid }
+  this._clientFunction('unblock', data, sessionToken, function(err, result) {
     if (err) {
       return cb(err)
     } else if (result != 'OK') {
@@ -170,42 +219,63 @@ YoInstall.prototype.unblock = function(target, myUdid, cb) {
 
 var PARSE_VERSION = 'a1.4.1'
 
-function Yoplait(udid, installId) {
+function Yoplait(udid, installId, sessionToken, objectId) {
   this.install = new YoInstall(PARSE_VERSION, installId)
   this.udid = udid
+  this.sessionToken = sessionToken
+  this.objectId = objectId
 }
 
 Yoplait.prototype.sendYo = function(to, cb) {
-  this.install.sendYo(to, this.udid, cb)
+  this.install.sendYo(to, this.udid, this.sessionToken, cb)
 }
 
 Yoplait.prototype.block = function(target, cb) {
-  this.install.block(target, this.udid, cb)
+  this.install.block(target, this.udid, this.sessionToken, cb)
 }
 
 Yoplait.prototype.unblock = function(target, cb) {
-  this.install.unblock(target, this.udid, cb)
+  this.install.unblock(target, this.udid, this.sessionToken, cb)
 }
 
-function signUp(username, udid, cb) {
+Yoplait.prototype._updateEnteredPasswordFlag = function(cb) {
+  var data = { objectId: this.objectId, didEnterPassword: true }
+  this.install.updateUser(data, this.sessionToken, cb)
+}
+
+function signUp(username, password, udid, cb) {
   var installId = uuid()
     , version = PARSE_VERSION
     , install = new YoInstall(version, installId)
     , email = username.split(/[^0-9a-zA-Z+-\/_.]/).join('_') + '@yo.com'
-  install.signUp(email, username, udid, function(err, result) {
+  install.signUp(email, username, password, udid, function(err, result) {
     if (err) {
       return cb(err)
     }
 
-    var yoplait = new Yoplait(udid, installId)
+    var yoplait = new Yoplait(udid, installId, result.session_token, result.data.objectId)
     cb(null, yoplait)
   })
 }
 
-function getExistingUser(username, udid, cb) {
+function logIn(username, password, udid, cb) {
+  var installId = uuid()
+    , version = PARSE_VERSION
+    , install = new YoInstall(version, installId)
+  install.logIn(username, password, function(err, result) {
+    if (err) {
+      return cb(err)
+    }
+
+    var yoplait = new Yoplait(udid, installId, result.session_token, result.data.objectId)
+    cb(null, yoplait)
+  })
+}
+
+function useExistingSession(udid, sessionToken, objectId, cb) {
   var installId = uuid()
   process.nextTick(function() {
-    cb(null, new Yoplait(udid, installId))
+    cb(null, new Yoplait(udid, installId, sessionToken, objectId))
   })
 }
 
@@ -228,8 +298,10 @@ function lookupUsername(username, cb) {
 }
 
 module.exports = {
-  newUser: signUp,
-  existingUser: getExistingUser,
+  signUp: signUp,
+  logIn: logIn,
+  useExistingSession: useExistingSession,
+
   lookupUdid: lookupUdid,
   lookupUsername: lookupUsername,
   genUdid: genUdid
