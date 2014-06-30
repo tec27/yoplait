@@ -247,7 +247,7 @@ function signUp(username, password, udid, cb) {
   var installId = uuid()
     , version = PARSE_VERSION
     , install = new YoInstall(version, installId)
-    , email = username.split(/[^0-9a-zA-Z+-_.]/).join('_') + Date.now() + '@yo.com'
+    , email = username.split(/[^0-9a-zA-Z+\-_.]/).join('_') + Date.now() + '@yo.com'
   install.signUp(email, username, password, udid, function(err, result) {
     if (err) {
       return cb(err)
