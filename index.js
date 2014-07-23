@@ -15,8 +15,10 @@ function YoInstall(version, installId) {
 
 function convertError(serverData) {
   var error = new Error('Server returned an error')
-  error.serverError = serverData.error
-  error.serverCode = serverData.code
+  if (serverData) {
+    error.serverError = serverData.error
+    error.serverCode = serverData.code
+  }
   return error
 }
 
@@ -36,7 +38,7 @@ YoInstall.prototype._clientFunction = function(name, data, sessionToken, cb) {
         return cb(err)
       }
 
-      if (data.error) {
+      if (!data || data.error) {
         return cb(convertError(data))
       }
 
@@ -93,7 +95,7 @@ YoInstall.prototype.signUp = function(email, username, password, udid, cb) {
     function(err, res, data) {
       if (err) {
         return cb(err)
-      } else if (data.error) {
+      } else if (!data || data.error) {
         return cb(convertError(data))
       }
 
@@ -114,7 +116,7 @@ YoInstall.prototype.logIn = function(username, password, cb) {
     function(err, res, data) {
       if (err) {
         return cb(err)
-      } else if (data.error) {
+      } else if (!data || data.error) {
         return cb(convertError(data))
       } else if (!data.result) {
         return cb(new Error('No result!'))
@@ -149,7 +151,7 @@ YoInstall.prototype.create = function(username, timeZone, cb) {
   request({ method: 'POST', uri: baseUrl + 'create', json: requestData }, function(err, res, data) {
     if (err) {
       return cb(err)
-    } else if (data.error) {
+    } else if (!data || data.error) {
       return cb(convertError(data))
     }
 
@@ -170,7 +172,7 @@ YoInstall.prototype.updateUser = function(updateData, sessionToken, cb) {
   request({ method: 'POST', uri: baseUrl + 'update', json: requestData }, function(err, res, data) {
     if (err) {
       return cb(err)
-    } else if (data.error) {
+    } else if (!data || data.error) {
       return cb(convertError(data))
     }
 
