@@ -80,7 +80,6 @@ YoInstall.prototype.signUp = function(email, username, password, udid, cb) {
     data: {
         email: email,
         username: username,
-        deviceType: 'android',
         udid: udid,
         didEnterPassword: true
       },
@@ -219,6 +218,17 @@ YoInstall.prototype.unblock = function(target, myUdid, sessionToken, cb) {
   })
 }
 
+YoInstall.prototype.getApiAccounts = function(myUdid, sessionToken, cb) {
+  var data = { udid: myUdid }
+  this._clientFunction('getAssocAccounts', data, sessionToken, function(err, result) {
+    if (err) {
+      return cb(err)
+    }
+
+    return cb(null, result)
+  })
+}
+
 var PARSE_VERSION = 'a1.4.1'
 
 function Yoplait(udid, installId, sessionToken, objectId) {
@@ -238,6 +248,20 @@ Yoplait.prototype.block = function(target, cb) {
 
 Yoplait.prototype.unblock = function(target, cb) {
   this.install.unblock(target, this.udid, this.sessionToken, cb)
+}
+
+Yoplait.prototype.updateCallbackUrl = function(url, cb) {
+  this.install.updateUser({ objectId: this.objectId, callback: url },
+      this.sessionToken, cb)
+}
+
+Yoplait.prototype.getApiAccounts = function(cb) {
+  this.install.getApiAccounts(this.udid, this.sessionToken, cb)
+}
+
+Yoplait.prototype.updateParentUser = function(parentUser, cb) {
+  this.install.updateUser({ objectId: this.objectId, parentUser: parentUser },
+      this.sessionToken, cb)
 }
 
 Yoplait.prototype._updateEnteredPasswordFlag = function(cb) {

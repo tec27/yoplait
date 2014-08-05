@@ -43,7 +43,9 @@ yoplait.signUp(username, udid, udid, function(err, yo) {
 
 ####<b><code>yoplait#signUp(username, password, udid, cb)</code></b>
 Sign up a new Yo account with the specified username and udid (device ID). Callback is in the form
-of `cb(err, yoplaitUser)`.
+of `cb(err, yoplaitUser)`. **NOTE:** As of around August 1st, 2014, Yo will no longer let accounts
+that don't follow their username format send Yo's (with one exception, underscores are allowed for
+some reason). The username format is all caps, alphanumeric, first character must be a letter.
 
 ####<b><code>yoplait#logIn(username, password, udid, cb)</code></b>
 Log in as an existing Yo user. Callback is in the form of `cb(err, yoplaitUser)`.
@@ -68,14 +70,27 @@ in mind, ideally creating unique device ID's per account.
 ### YoplaitUser
 Get a user object by calling `yoplait#newUser` or `yoplait#existingUser`.
 
-####<b><code>user#sendYo(to, cb)</b></code>
+####<b><code>user#sendYo(to, cb)</code></b>
 Sends a yo to the username specified by `to`. Callback is in the form of `cb(err)`.
 
-####<b><code>user#block(target, cb)</b></code>
+####<b><code>user#block(target, cb)</code></b>
 Blocks the username specified by `target`. Callback is in the form of `cb(err)`.
 
-####<b><code>user#unblock(target, cb)</b></code>
+####<b><code>user#unblock(target, cb)</code></b>
 Unblocks the username specified by `target`. Callback is in the form of `cb(err)`.
+
+####<b><code>user#updateCallbackUrl(url, cb)</code></b>
+Updates the callback URL for an account, which will be sent a GET request whenever this user is
+Yo'd. (The query string will contain the username, e.g. `?username=OHSUP`). Callback is in the form
+of `cb(err, result)`.
+
+####<b><code>user#getApiAccounts(cb)</code></b>
+Returns a list of API accounts associated with this user (e.g. ones that have it set as their
+`parentUser`). Callback is in the form of `cb(err, results)`.
+
+####<b><code>user#updateParentUser(parentUser, cb)</code></b>
+Sets the `parentUser` of this user (marking this account as an API account owned by `parentUser`).
+Callback is in the form of `cb(err, result)`.
 
 ####<b><code>user#udid</b></code>
 The UDID of this YoplaitUser.

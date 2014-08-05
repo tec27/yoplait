@@ -1,6 +1,6 @@
 {
   "name": "yoplait",
-  "version": "0.4.4",
+  "version": "0.5.0",
   "description": "A wrapper around the \"unofficial\" Yo API.",
   "main": "index.js",
   "scripts": {
