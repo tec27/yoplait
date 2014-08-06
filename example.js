@@ -1,7 +1,7 @@
 var yoplait = require('./')
 
 var udid = yoplait.genUdid()
-  , username = 'yoplait ' + Date.now()
+  , username = 'YOPLAIT_' + Date.now()
 
 console.log('signing up \'' + username + '\' with udid ' + udid)
 yoplait.signUp(username, udid, udid, function(err, yo) {
